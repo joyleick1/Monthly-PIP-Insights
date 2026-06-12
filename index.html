@@ -102,7 +102,10 @@ tbody td{padding:11px 16px;color:#1B2B3B;vertical-align:middle}
         <div class="hsub">TP Gusto · Performance Improvement Plans</div>
       </div>
     </div>
+    <div style="display:flex;align-items:center;gap:10px">
     <span class="hbadge" id="hcount">0 Active PIPs</span>
+    <button onclick="clearData()" style="background:transparent;border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.7);padding:4px 10px;border-radius:20px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">Clear Data</button>
+  </div>
   </div>
 
   <div class="page">
@@ -168,6 +171,24 @@ tbody td{padding:11px 16px;color:#1B2B3B;vertical-align:middle}
 </div>
 
 <script>
+function clearData() {
+  if(confirm('Clear all saved PIP data?')) {
+    localStorage.removeItem('pipdata');
+    localStorage.removeItem('pipfilename');
+    data = [];
+    document.getElementById('fname').textContent = '';
+    document.getElementById('mt').textContent='—';
+    document.getElementById('mp').textContent='—';
+    document.getElementById('mps').textContent='—';
+    document.getElementById('mf').textContent='—';
+    document.getElementById('mtr').textContent='—';
+    document.getElementById('hcount').textContent='0 Active PIPs';
+    document.getElementById('tb').innerHTML='';
+    document.getElementById('emp').style.display='block';
+    document.querySelector('#tbl thead').style.display='none';
+  }
+}
+
 function unlock() {
   var p = document.getElementById('pw').value;
   if (p === 'Gusto!') {
@@ -185,6 +206,17 @@ document.getElementById('lock').style.display='none'; document.getElementById('a
 
 var data=[], sk='month', sd=1;
 var MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// Load saved data from localStorage
+try {
+  var saved = localStorage.getItem('pipdata');
+  var savedName = localStorage.getItem('pipfilename');
+  if(saved) {
+    data = JSON.parse(saved);
+    if(savedName) document.getElementById('fname').textContent = '✓ ' + savedName + ' (saved)';
+    fillFilters(); updateMetrics(); renderCharts(); render();
+  }
+} catch(e){}
 
 function doDrag(e,on){ e.preventDefault(); document.querySelector('.upzone').style.background=on?'#d4f3e8':'#E6F8F1'; }
 function doDrop(e){ e.preventDefault(); doDrag(e,false); if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); }
@@ -213,6 +245,8 @@ function loadFile(file){
       data.push({name:n,month:String(row[iM]||'').trim(),pip:String(row[iP]||'').trim(),status:String(row[iS]||'').trim(),comment:c});
     }
     fillFilters(); updateMetrics(); renderCharts(); render();
+    // Save to localStorage for persistence
+    try { localStorage.setItem('pipdata', JSON.stringify(data)); localStorage.setItem('pipfilename', file.name); } catch(e){}
   };
   r.readAsArrayBuffer(file);
 }
