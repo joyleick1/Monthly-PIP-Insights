@@ -4,26 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PIP Tracker — TP Gusto</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--g:#00AC69;--gd:#008A54;--gl:#E6F8F1;--gm:#B3EDD7;--n:#1B2B3B;--s:#3D5166;--ms:#F4F6F8;--b:#E2E8EF;--t:#1B2B3B;--tm:#6B7C8D;--w:#FFFFFF;--a:#F5A623;--r:#E53935;--rl:#FDECEC;--al:#FEF6E4;--r:10px;--rs:6px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:#F4F6F8;color:#1B2B3B;min-height:100vh}
-#lock{position:fixed;inset:0;background:#1B2B3B;display:flex;align-items:center;justify-content:center;z-index:1000}
-.card{background:#fff;border-radius:16px;padding:48px 40px;width:380px;text-align:center}
-.logo{width:44px;height:44px;background:#00AC69;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:20px}
-.logo svg{width:24px;height:24px;fill:white}
-.card h1{font-size:22px;font-weight:600;color:#1B2B3B;margin-bottom:6px}
-.card p{font-size:14px;color:#6B7C8D;margin-bottom:28px}
-#pw{width:100%;padding:12px 16px;border:1.5px solid #E2E8EF;border-radius:6px;font-size:15px;font-family:'DM Mono',monospace;color:#1B2B3B;outline:none;margin-bottom:14px}
-#pw:focus{border-color:#00AC69}
-#pw.err{border-color:#E53935}
-#unlockbtn{width:100%;padding:12px;background:#00AC69;color:white;font-size:15px;font-weight:600;border:none;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif}
-#unlockbtn:hover{background:#008A54}
-#errmsg{font-size:13px;color:#E53935;margin-top:10px;height:18px}
-#app{display:none;min-height:100vh}
 .hdr{background:#1B2B3B;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .hlogo{display:flex;align-items:center;gap:10px}
 .hmark{width:32px;height:32px;background:#00AC69;border-radius:8px;display:flex;align-items:center;justify-content:center}
@@ -31,12 +16,8 @@ body{font-family:'DM Sans',sans-serif;background:#F4F6F8;color:#1B2B3B;min-heigh
 .htitle{font-size:16px;font-weight:600;color:white}
 .hsub{font-size:12px;color:rgba(255,255,255,0.5);margin-top:1px}
 .hbadge{background:#00AC69;color:white;font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px}
+.updated{font-size:11px;color:rgba(255,255,255,0.4)}
 .page{max-width:1100px;margin:0 auto;padding:28px 24px}
-.upzone{border:2px dashed #B3EDD7;background:#E6F8F1;border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:background .15s;margin-bottom:28px;position:relative}
-.upzone:hover{background:#d4f3e8;border-color:#00AC69}
-.upzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upzone h3{font-size:15px;font-weight:600;color:#008A54;margin-bottom:4px}
-.upzone p{font-size:13px;color:#6B7C8D}
 .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px}
 .mc{background:#fff;border:1px solid #E2E8EF;border-radius:10px;padding:18px 20px;position:relative;overflow:hidden}
 .mc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ac,#00AC69)}
@@ -67,76 +48,65 @@ tbody td{padding:11px 16px;color:#1B2B3B;vertical-align:middle}
 .bp{background:#FEF6E4;color:#B36B00}
 .by{background:#E6F8F1;color:#008A54}
 .bn{background:#FDECEC;color:#E53935}
-.empty{text-align:center;padding:60px 20px;color:#6B7C8D}
-.empty .ic{font-size:40px;margin-bottom:12px}
-.empty h3{font-size:16px;font-weight:600;color:#3D5166;margin-bottom:6px}
-.empty p{font-size:13px}
 .fn{text-align:center;font-size:12px;color:#6B7C8D;padding-bottom:40px}
 .sa{margin-left:4px;opacity:.4}
 .sa.on{opacity:1;color:#00AC69}
+.month-section{margin-bottom:32px}
+.month-header{font-size:16px;font-weight:600;color:#1B2B3B;padding:12px 20px;background:#fff;border:1px solid #E2E8EF;border-radius:10px 10px 0 0;border-bottom:none;display:flex;align-items:center;justify-content:space-between}
+.month-stats{display:flex;gap:16px;font-size:13px}
+.month-stat{display:flex;align-items:center;gap:6px}
+.tabs{display:flex;gap:4px;margin-bottom:24px;background:#fff;border:1px solid #E2E8EF;border-radius:10px;padding:4px;width:fit-content}
+.tab{padding:8px 20px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:#6B7C8D;font-family:'DM Sans',sans-serif;transition:all .15s}
+.tab.active{background:#00AC69;color:white}
+#view-table{display:block}
+#view-month{display:none}
 </style>
 </head>
 <body>
 
-<div id="lock" style="display:none">
-  <div class="card">
-    <div class="logo">
-      <svg viewBox="0 0 24 24"><path d="M12 2C9.24 2 7 4.24 7 7v1H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2h-2V7c0-2.76-2.24-5-5-5zm0 2c1.66 0 3 1.34 3 3v1H9V7c0-1.66 1.34-3 3-3zm0 9c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"/></svg>
+<div class="hdr">
+  <div class="hlogo">
+    <div class="hmark">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
     </div>
-    <h1>PIP Tracker</h1>
-    <p>Enter your access password to view the dashboard.</p>
-    <input type="password" id="pw" placeholder="Password">
-    <button id="unlockbtn" onclick="unlock()">Unlock Dashboard</button>
-    <div id="errmsg"></div>
+    <div>
+      <div class="htitle">PIP Tracker</div>
+      <div class="hsub">TP Gusto · Performance Improvement Plans</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span class="updated">Last updated: June 12, 2026</span>
+    <span class="hbadge" id="hcount">0 Active PIPs</span>
   </div>
 </div>
 
-<div id="app">
-  <div class="hdr">
-    <div class="hlogo">
-      <div class="hmark">
-        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
-      </div>
-      <div>
-        <div class="htitle">PIP Tracker</div>
-        <div class="hsub">TP Gusto · Performance Improvement Plans</div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px">
-    <span class="hbadge" id="hcount">0 Active PIPs</span>
-    <button onclick="clearData()" style="background:transparent;border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.7);padding:4px 10px;border-radius:20px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">Clear Data</button>
-  </div>
+<div class="page">
+  <div class="metrics">
+    <div class="mc" style="--ac:#00AC69"><div class="ml">Total PIPs</div><div class="mv" id="mt">—</div><div class="ms2">All records</div></div>
+    <div class="mc" style="--ac:#F5A623"><div class="ml">In Progress</div><div class="mv" id="mp">—</div><div class="ms2">Active PIPs</div></div>
+    <div class="mc" style="--ac:#00AC69"><div class="ml">Passed</div><div class="mv" id="mps">—</div><div class="ms2">Completed</div></div>
+    <div class="mc" style="--ac:#E53935"><div class="ml">Did Not Pass</div><div class="mv" id="mf">—</div><div class="ms2">Not completed</div></div>
+    <div class="mc" style="--ac:#E53935"><div class="ml">Terminated</div><div class="mv" id="mtr">—</div><div class="ms2">Agent status: Term</div></div>
   </div>
 
-  <div class="page">
-    <div class="upzone" ondragover="doDrag(event,true)" ondragleave="doDrag(event,false)" ondrop="doDrop(event)">
-      <input type="file" accept=".xlsx,.xls,.csv" onchange="loadFile(this.files[0])">
-      <div style="font-size:28px;margin-bottom:8px">📊</div>
-      <h3>Upload PIP Tracker spreadsheet</h3>
-      <p>Drop your Excel file here or click to browse · .xlsx, .xls, or .csv</p>
-      <div id="fname" style="font-size:13px;color:#008A54;font-weight:500;margin-top:8px"></div>
+  <div class="crow">
+    <div class="cc">
+      <h3>PIP Status Breakdown</h3>
+      <div id="leg" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:12px;color:#6B7C8D"></div>
+      <div style="position:relative;height:200px"><canvas id="cs"></canvas></div>
     </div>
-
-    <div class="metrics">
-      <div class="mc" style="--ac:#00AC69"><div class="ml">Total PIPs</div><div class="mv" id="mt">—</div><div class="ms2">All records</div></div>
-      <div class="mc" style="--ac:#F5A623"><div class="ml">In Progress</div><div class="mv" id="mp">—</div><div class="ms2">Active PIPs</div></div>
-      <div class="mc" style="--ac:#00AC69"><div class="ml">Passed</div><div class="mv" id="mps">—</div><div class="ms2">Completed</div></div>
-      <div class="mc" style="--ac:#E53935"><div class="ml">Did Not Pass</div><div class="mv" id="mf">—</div><div class="ms2">Not completed</div></div>
-      <div class="mc" style="--ac:#E53935"><div class="ml">Terminated</div><div class="mv" id="mtr">—</div><div class="ms2">Agent status: Term</div></div>
+    <div class="cc">
+      <h3>PIPs by Month</h3>
+      <div style="position:relative;height:220px"><canvas id="cm"></canvas></div>
     </div>
+  </div>
 
-    <div class="crow">
-      <div class="cc">
-        <h3>PIP Status Breakdown</h3>
-        <div id="leg" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:12px;color:#6B7C8D"></div>
-        <div style="position:relative;height:200px"><canvas id="cs" role="img" aria-label="PIP status donut chart"></canvas></div>
-      </div>
-      <div class="cc">
-        <h3>PIPs by Month</h3>
-        <div style="position:relative;height:220px"><canvas id="cm" role="img" aria-label="PIPs per month bar chart"></canvas></div>
-      </div>
-    </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchView('table')">All Records</button>
+    <button class="tab" onclick="switchView('month')">By Month</button>
+  </div>
 
+  <div id="view-table">
     <div class="tc">
       <div class="th2">
         <h2>Agent PIP Records</h2>
@@ -148,7 +118,7 @@ tbody td{padding:11px 16px;color:#1B2B3B;vertical-align:middle}
       </div>
       <div style="overflow-x:auto">
         <table id="tbl">
-          <thead style="display:none">
+          <thead>
             <tr>
               <th onclick="srt('name')">Agent Name <span class="sa" id="sn">↕</span></th>
               <th onclick="srt('month')">Month <span class="sa" id="sm">↕</span></th>
@@ -160,134 +130,86 @@ tbody td{padding:11px 16px;color:#1B2B3B;vertical-align:middle}
           <tbody id="tb"></tbody>
         </table>
       </div>
-      <div id="emp" class="empty">
-        <div class="ic">📁</div>
-        <h3>No data loaded yet</h3>
-        <p>Upload an Excel file above to populate the dashboard.</p>
-      </div>
     </div>
-    <div class="fn">PIP Tracker · TP Gusto · Data stays in your browser — nothing is sent to any server.</div>
   </div>
+
+  <div id="view-month"></div>
+
+  <div class="fn">PIP Tracker · TP Gusto · 2026</div>
 </div>
 
 <script>
-function clearData() {
-  if(confirm('Clear all saved PIP data?')) {
-    localStorage.removeItem('pipdata');
-    localStorage.removeItem('pipfilename');
-    data = [];
-    document.getElementById('fname').textContent = '';
-    document.getElementById('mt').textContent='—';
-    document.getElementById('mp').textContent='—';
-    document.getElementById('mps').textContent='—';
-    document.getElementById('mf').textContent='—';
-    document.getElementById('mtr').textContent='—';
-    document.getElementById('hcount').textContent='0 Active PIPs';
-    document.getElementById('tb').innerHTML='';
-    document.getElementById('emp').style.display='block';
-    document.querySelector('#tbl thead').style.display='none';
-  }
-}
-
-function unlock() {
-  var p = document.getElementById('pw').value;
-  if (p === 'Gusto!') {
-    document.getElementById('lock').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    sessionStorage.setItem('a','1');
-  } else {
-    document.getElementById('pw').classList.add('err');
-    document.getElementById('errmsg').textContent = 'Incorrect password. Please try again.';
-    setTimeout(function(){ document.getElementById('pw').classList.remove('err'); }, 400);
-  }
-}
-document.getElementById('pw').addEventListener('keydown', function(e){ if(e.key==='Enter') unlock(); });
-document.getElementById('lock').style.display='none'; document.getElementById('app').style.display='block';
-
-var data=[], sk='month', sd=1;
 var MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var data = [{"name": "Katherine Sanchez", "month": "February", "pip": "No", "status": "Active", "comment": "Agent  failed the PIP for tNPS.", "start": "", "end": ""}, {"name": "Carlos Zamora", "month": "February", "pip": "Yes", "status": "Active", "comment": "Agent successfully passed the PIP for tNPS.", "start": "", "end": ""}, {"name": "Olga Cu", "month": "March", "pip": "Yes", "status": "Active", "comment": "Agent achieved tNPS target", "start": "", "end": ""}, {"name": "Katherine Sanchez", "month": "March", "pip": "Yes", "status": "Active", "comment": "Agent achieved tNPS target", "start": "", "end": ""}, {"name": "Jorge Monroy", "month": "April", "pip": "Yes", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Katherine Sanchez", "month": "April", "pip": "Yes", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/15/2026"}, {"name": "Jose Jerez", "month": "April", "pip": "Yes", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Nerea Martinez", "month": "April", "pip": "Yes", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Kevin Tadeo", "month": "April", "pip": "No", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Marco Ortiz", "month": "February", "pip": "Yes", "status": "Active", "comment": "Agent passed tNPS target", "start": "", "end": ""}, {"name": "Itzury Florez", "month": "February", "pip": "Yes", "status": "Term", "comment": "Agent passed AHT PIP", "start": "", "end": ""}, {"name": "Madeline Castillo", "month": "March", "pip": "Yes", "status": "Active", "comment": "Agent passed tNPS goal", "start": "", "end": ""}, {"name": "Madeline Castillo", "month": "April", "pip": "No", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Jorge Sumich", "month": "April", "pip": "No", "status": "Term", "comment": "Ongoing AHT PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Marco Ortiz", "month": "April", "pip": "No", "status": "Active", "comment": "Ongoing AHT PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Kevin Perez", "month": "April", "pip": "No", "status": "Active", "comment": "Ongoing AHT PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Wendy Valles", "month": "April", "pip": "Yes", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Leonel Martinez", "month": "March", "pip": "Yes", "status": "Active", "comment": "Agent achieved tNPS target", "start": "", "end": ""}, {"name": "Bryan Monzon", "month": "March", "pip": "No", "status": "Active", "comment": "Agent  failed the PIP for tNPS.", "start": "", "end": ""}, {"name": "Roberto Arevalo", "month": "March", "pip": "No", "status": "Active", "comment": "Agent  failed the PIP for tNPS.", "start": "", "end": ""}, {"name": "Bryan Monzon", "month": "April", "pip": "PIP in progress", "status": "Active", "comment": "Retraining 4 weeks", "start": "4/19/2026", "end": "5/10/2026"}, {"name": "Kenire Sical", "month": "April", "pip": "PIP in progress", "status": "Active", "comment": "Retraining 4 weeks", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Hannah Sagastume", "month": "April", "pip": "No", "status": "Term", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Marisabel Cifuentes", "month": "June", "pip": "Yes", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Marlos Ramos", "month": "April", "pip": "Yes", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Hellen Lopez", "month": "February", "pip": "Yes", "status": "Active", "comment": "Agent passed tNPS goal", "start": "", "end": ""}, {"name": "Ana Godoy", "month": "February", "pip": "No", "status": "Term", "comment": "Agent  failed the PIP for tNPS.", "start": "", "end": ""}, {"name": "Pedro Gonzalez", "month": "February", "pip": "No", "status": "Term", "comment": "Agent  failed the PIP for tNPS.", "start": "", "end": ""}, {"name": "Marlon Vasquez", "month": "March", "pip": "Yes", "status": "Active", "comment": "Agent passed tNPS goal", "start": "", "end": ""}, {"name": "Jonathan Moran", "month": "March", "pip": "Yes", "status": "Active", "comment": "Agent passed tNPS goal", "start": "", "end": ""}, {"name": "Alison Benavides", "month": "April", "pip": "No", "status": "Term", "comment": "Agent  failed the PIP for tNPS.", "start": "3/30/2026", "end": "04/27/2026"}, {"name": "Benjamin Castillo", "month": "April", "pip": "No", "status": "Active", "comment": "Ongoing AHT PIP", "start": "3/30/2026", "end": "04/27/2026"}, {"name": "Marlon Vasquez", "month": "April", "pip": "No", "status": "Term", "comment": "Ongoing AHT PIP", "start": "3/8/2026", "end": "04/05/2026"}, {"name": "Stephan Villagran", "month": "April", "pip": "Yes", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Zdenek Hrozek", "month": "April", "pip": "Yes", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Imer Lopez", "month": "April", "pip": "No", "status": "Term", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Bryan Cardona", "month": "February", "pip": "No", "status": "Term", "comment": "Agent  failed the PIP for tNPS.", "start": "", "end": ""}, {"name": "Evelyn Lopez", "month": "February", "pip": "No", "status": "Term", "comment": "Agent  failed the PIP for tNPS.", "start": "", "end": ""}, {"name": "Genesis Rodriguez", "month": "February", "pip": "No", "status": "Term", "comment": "Agent  failed the PIP for tNPS.", "start": "", "end": ""}, {"name": "Brandon Mackenzie", "month": "February", "pip": "No", "status": "Term", "comment": "Agent  failed the PIP for tNPS.", "start": "", "end": ""}, {"name": "Luis Argueta", "month": "February", "pip": "No", "status": "Term", "comment": "Agent  failed the PIP for tNPS.", "start": "", "end": ""}, {"name": "Vivian Garcia", "month": "April", "pip": "No", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Carla Marroquin", "month": "April", "pip": "Yes", "status": "Active", "comment": "Retraining 4 weeks", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Allan Sequen", "month": "January", "pip": "No", "status": "Term", "comment": "Agent  failed the PIP for tNPS.", "start": "", "end": ""}, {"name": "Luz Estrada", "month": "March", "pip": "PIP in progress", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "", "end": ""}, {"name": "Jorge Sumich", "month": "February", "pip": "Yes", "status": "", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Jorge Sumich", "month": "April", "pip": "No", "status": "Term", "comment": "DP for ACW usage", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Marco Ortiz", "month": "April", "pip": "Yes", "status": "Active", "comment": "DP for ACW usage", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Marco Ortiz", "month": "March", "pip": "Yes", "status": "Active", "comment": "DP for exceed aux usage", "start": "", "end": ""}, {"name": "Madeline Castillo", "month": "March", "pip": "Yes", "status": "Active", "comment": "DP for low  peformance in the last 2 months", "start": "", "end": ""}, {"name": "Madeline Castillo", "month": "March", "pip": "Yes", "status": "Active", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Luis Espana", "month": "March", "pip": "Yes", "status": "Active", "comment": "DP for exceed aux usage", "start": "", "end": ""}, {"name": "Antony Lotan", "month": "February", "pip": "Yes", "status": "Active", "comment": "DP for ACW usage", "start": "", "end": ""}, {"name": "Udelma Pineda", "month": "February", "pip": "Yes", "status": "Active", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Kevin Tadeo", "month": "March", "pip": "No", "status": "Active", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Eddy De Leon", "month": "March", "pip": "No", "status": "Active", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Victor Vasquez", "month": "March", "pip": "Yes", "status": "Active", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Victor Vasquez", "month": "March", "pip": "Yes", "status": "Active", "comment": "DP for exceed aux usage", "start": "", "end": ""}, {"name": "Jorge Monroy", "month": "March", "pip": "No", "status": "Active", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Madeleynn Arreaga", "month": "January", "pip": "No", "status": "Term", "comment": "tNPS", "start": "", "end": ""}, {"name": "Omar Aguilar", "month": "April", "pip": "No", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Jossie Morales", "month": "April", "pip": "Yes", "status": "Active", "comment": "Ongoing tNPS PIP", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Diana Barreara", "month": "March", "pip": "No", "status": "Active", "comment": "ACW, Attendance, Exceed aux usage", "start": "", "end": ""}, {"name": "Brian Rosales", "month": "April", "pip": "No", "status": "Active", "comment": "Attendance & exceed aux usage", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Jennifer Jerez", "month": "April", "pip": "No", "status": "Active", "comment": "Attendance", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Byron Escobar", "month": "April", "pip": "No", "status": "Active", "comment": "Attendance", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "MariaRodas", "month": "April", "pip": "No", "status": "Active", "comment": "Attendace", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Wilmer Arevalo", "month": "March", "pip": "Yes", "status": "Active", "comment": "DP for QA", "start": "", "end": ""}, {"name": "Carmen Romero", "month": "March", "pip": "No", "status": "Active", "comment": "DP for exceed aux usage", "start": "", "end": ""}, {"name": "Stephan Villagran", "month": "March", "pip": "Yes", "status": "Active", "comment": "DP for tool usage", "start": "", "end": ""}, {"name": "Jonathan Moran", "month": "March", "pip": "Yes", "status": "Active", "comment": "DP for tool usage", "start": "", "end": ""}, {"name": "Alison Benavides", "month": "March", "pip": "Yes", "status": "Term", "comment": "DP for tool usage", "start": "", "end": ""}, {"name": "Edwin LIma", "month": "March", "pip": "Yes", "status": "Active", "comment": "DP for tool usage", "start": "", "end": ""}, {"name": "Edson quinonez", "month": "January", "pip": "Yes", "status": "Active", "comment": "QA verification", "start": "", "end": ""}, {"name": "Jose Manzo", "month": "January", "pip": "Yes", "status": "Active", "comment": "Unjustified Abs", "start": "", "end": ""}, {"name": "Maria Vivas", "month": "February", "pip": "Yes", "status": "Term", "comment": "Call Avoidance", "start": "", "end": ""}, {"name": "Luis samayoa", "month": "March", "pip": "No", "status": "Term", "comment": "Attendance & exceed aux usage", "start": "", "end": ""}, {"name": "Madeleynn Arreaga", "month": "February", "pip": "No", "status": "Term", "comment": "exceed aux usage", "start": "", "end": ""}, {"name": "Madeleynn Arreaga", "month": "February", "pip": "No", "status": "Term", "comment": "QA verification", "start": "", "end": ""}, {"name": "Christian Escobar", "month": "February", "pip": "Yes", "status": "Active", "comment": "QA verification", "start": "", "end": ""}, {"name": "Christian Escobar", "month": "February", "pip": "Yes", "status": "Active", "comment": "DP for exceed aux usage", "start": "", "end": ""}, {"name": "Alan Crisostomo", "month": "February", "pip": "", "status": "Active", "comment": "DP for lateness", "start": "", "end": ""}, {"name": "Wendy Jolon", "month": "February", "pip": "Yes", "status": "Active", "comment": "Aux Abuse", "start": "", "end": ""}, {"name": "Sandra Sanzhez", "month": "March", "pip": "", "status": "Active", "comment": "Aux Abuse", "start": "", "end": ""}, {"name": "Kelly Perez", "month": "April", "pip": "Yes", "status": "Active", "comment": "DP for Lateness", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Arely Pineda", "month": "March", "pip": "", "status": "Active", "comment": "Aux Abuse", "start": "", "end": ""}, {"name": "Salvador Giron", "month": "March", "pip": "", "status": "Active", "comment": "Aux Abuse", "start": "", "end": ""}, {"name": "Mynor Marroquin", "month": "March", "pip": "", "status": "Active", "comment": "Aux Abuse", "start": "", "end": ""}, {"name": "Evelyn Hernandez", "month": "March", "pip": "", "status": "Active", "comment": "Aux Abuse", "start": "", "end": ""}, {"name": "Lucy Lopez", "month": "February", "pip": "", "status": "Active", "comment": "Aux Abuse", "start": "", "end": ""}, {"name": "Pablo Gonzalez", "month": "February", "pip": "", "status": "Term", "comment": "Aux Abuse", "start": "", "end": ""}, {"name": "Samantha Pacheco", "month": "February", "pip": "", "status": "Active", "comment": "Aux Abuse", "start": "", "end": ""}, {"name": "Jennifer Pirir", "month": "February", "pip": "", "status": "Term", "comment": "Aux Abuse", "start": "", "end": ""}, {"name": "Miguel recinos", "month": "February", "pip": "Yes", "status": "Active", "comment": "Aux Abuse", "start": "", "end": ""}, {"name": "Pedro Gonzalez", "month": "February", "pip": "", "status": "Term", "comment": "DP for tNPS", "start": "", "end": ""}, {"name": "Alison Benavidez", "month": "March", "pip": "", "status": "Term", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Edwin Lima", "month": "April", "pip": "Yes", "status": "Active", "comment": "DP for attendance", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Jefferson Ramos", "month": "April", "pip": "No", "status": "Term", "comment": "Termination", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Maria Avila", "month": "April", "pip": "No", "status": "Term", "comment": "Termination", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Katherin Pineda", "month": "February", "pip": "Yes", "status": "Term", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Jose Gonzalez", "month": "February", "pip": "", "status": "Term", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Mauricio Rodriguez", "month": "February", "pip": "Yes", "status": "Term", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Tony Ramirez", "month": "February", "pip": "Yes", "status": "Term", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Marisabel Cifuentes", "month": "March", "pip": "", "status": "Active", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Hannah Sagastume", "month": "April", "pip": "No", "status": "Term", "comment": "DP for attendance", "start": "4/1/2026", "end": "04/30/2026"}, {"name": "Nicole Palencia", "month": "March", "pip": "Yes", "status": "Active", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Yuridia Mazariegos", "month": "March", "pip": "No", "status": "Term", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Carlos Tobar", "month": "March", "pip": "No", "status": "Term", "comment": "DP for attendance", "start": "", "end": ""}, {"name": "Carmen Romero", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "", "start": "5/31/2026", "end": "06/28/2026"}, {"name": "Vivian Garcia", "month": "May", "pip": "No", "status": "Active", "comment": "AHT", "start": "5/1/2026", "end": "5/30/2026"}, {"name": "Karla Figeroa", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "Chat AHT", "start": "5/5/2026", "end": "6/5/2026"}, {"name": "Imer Lopez", "month": "May", "pip": "No", "status": "Term", "comment": "tNPS", "start": "5/1/2026", "end": "5/30/2026"}, {"name": "Luis Zeissig", "month": "May", "pip": "No", "status": "Active", "comment": "tNPS-", "start": "5/1/2026", "end": "5/30/2026"}, {"name": "Katherine Mejia", "month": "May", "pip": "Yes", "status": "Active", "comment": "tNPS", "start": "4/27/2026", "end": "5/22/2026"}, {"name": "Jose Xeu", "month": "May", "pip": "No", "status": "Active", "comment": "tNPS", "start": "5/1/2026", "end": "6/1/2026"}, {"name": "Pedro Gonzalez", "month": "May", "pip": "No", "status": "Term", "comment": "TNPS", "start": "3/30/2026", "end": "04/27/2026"}, {"name": "Isa Davila", "month": "May", "pip": "No", "status": "Active", "comment": "DP for attendance", "start": "4/27/2026", "end": "5/22/2026"}, {"name": "Omar Aguilar", "month": "May", "pip": "PIP in progress", "status": "Active", "comment": "tNPS", "start": "5/22/2026", "end": ""}, {"name": "Leyser Olazabal", "month": "May", "pip": "PIP in progress", "status": "Active", "comment": "tNPS", "start": "5/22/2026", "end": ""}, {"name": "Antony Lotan", "month": "May", "pip": "No", "status": "Active", "comment": "tNPS", "start": "5/1/2026", "end": "6/1/2026"}, {"name": "Marlo Ramos", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "AHT", "start": "6/1/2026", "end": "6/26/2026"}, {"name": "Oscar Caal", "month": "May", "pip": "No", "status": "Term", "comment": "TNPS", "start": "5/1/2026", "end": "5/30/2026"}, {"name": "Madeline Castillo", "month": "May", "pip": "No", "status": "Active", "comment": "TNPS", "start": "4/25/2026", "end": "5/30/2026"}, {"name": "Roque Carranza", "month": "May", "pip": "No", "status": "Active", "comment": "TNPS", "start": "4/25/2026", "end": "5/30/2026"}, {"name": "Kevin Perez", "month": "May", "pip": "Yes", "status": "Active", "comment": "ACW", "start": "4/25/2026", "end": "5/30/2026"}, {"name": "Marlon Vasquez", "month": "May", "pip": "No", "status": "Term", "comment": "AHT", "start": "4/19/2026", "end": "5/10/2026"}, {"name": "Isa Davila", "month": "May", "pip": "PIP in progress", "status": "Active", "comment": "DP for AHT", "start": "4/27/2026", "end": "5/22/2026"}, {"name": "Evelyn Hernandez", "month": "June", "pip": "No", "status": "Active", "comment": "Chat AHT", "start": "5/5/2026", "end": "06/02/2026"}, {"name": "Kevin Tadeo", "month": "May", "pip": "Yes", "status": "Active", "comment": "TNPS", "start": "5/1/2026", "end": "6/1/2026"}, {"name": "Marisabel Cifuentes", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "TNPS - AHT / ML til 6/9/2026", "start": "4/19/2026", "end": "5/16/2026"}, {"name": "Marlon Ramos", "month": "May", "pip": "Yes", "status": "Active", "comment": "", "start": "4/19/2026", "end": "6/1/2026"}, {"name": "Julio Mendoza", "month": "May", "pip": "PIP in progress", "status": "Active", "comment": "tNPS", "start": "4/13/2026", "end": "6/10/2026"}, {"name": "Nancy Lopez", "month": "May", "pip": "No", "status": "Active", "comment": "tNPS", "start": "4/8/2026", "end": "6/12/2026"}, {"name": "Jose Escobar", "month": "May", "pip": "Yes", "status": "Active", "comment": "AHT", "start": "5/1/2026", "end": "5/30/2026"}, {"name": "Salvador Giron", "month": "May", "pip": "Yes", "status": "Active", "comment": "tNPS", "start": "5/5/2026", "end": "6/5/2026"}, {"name": "Andre Padilla", "month": "May", "pip": "Yes", "status": "Active", "comment": "AHT", "start": "5/1/2026", "end": "5/30/2026"}, {"name": "Angel Fuentes", "month": "May", "pip": "Yes", "status": "Active", "comment": "AHT", "start": "5/1/2026", "end": "5/30/2026"}, {"name": "Jairon Ramos", "month": "May", "pip": "Yes", "status": "Active", "comment": "AHT", "start": "5/1/2026", "end": "5/30/2026"}, {"name": "Diego figueroa", "month": "June", "pip": "PIP in progress", "status": "Term", "comment": "TNPS", "start": "5/17/2026", "end": "6/12/2026"}, {"name": "Marvin de Leon", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "AHT emails", "start": "5/25/2026", "end": "6/19/2026"}, {"name": "Brian Rosales", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "TNPS", "start": "5/17/2026", "end": "6/12/2026"}, {"name": "Carlo Vandemberg", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "TNPS", "start": "5/17/2026", "end": "6/12/2026"}, {"name": "Benjamin Castillo", "month": "May", "pip": "Yes", "status": "Active", "comment": "AHT", "start": "4/27/2026", "end": "5/22/2026"}, {"name": "Mynor Marroquin", "month": "June", "pip": "Yes", "status": "Active", "comment": "AHT", "start": "5/5/2026", "end": "6/2/2026"}, {"name": "Marco Ortiz", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "AHT emails-chats", "start": "6/3/2026", "end": "6/26/2026"}, {"name": "Roque carranza", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "TNPS", "start": "1/6/2026", "end": "6/26/2026"}, {"name": "Madeline castillo", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "QA", "start": "6/4/2026", "end": "6/26/2026"}, {"name": "Jose Jerez", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "TNPS y Email AHT", "start": "6/8/2026", "end": "7/3/0206"}, {"name": "Kevin Perez", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "QA", "start": "1/6/2026", "end": "6/26/2026"}, {"name": "Lanzlat Grant", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "AHT", "start": "5/31/2026", "end": "6/28/2026"}, {"name": "Wendy Valles", "month": "June", "pip": "PIP in progress", "status": "Active", "comment": "AHT emails-chats", "start": "6/4/2026", "end": "6/29/2026"}];
+var sk='month', sd=1;
 
-// Load saved data from localStorage
-try {
-  var saved = localStorage.getItem('pipdata');
-  var savedName = localStorage.getItem('pipfilename');
-  if(saved) {
-    data = JSON.parse(saved);
-    if(savedName) document.getElementById('fname').textContent = '✓ ' + savedName + ' (saved)';
-    fillFilters(); updateMetrics(); renderCharts(); render();
-  }
-} catch(e){}
-
-function doDrag(e,on){ e.preventDefault(); document.querySelector('.upzone').style.background=on?'#d4f3e8':'#E6F8F1'; }
-function doDrop(e){ e.preventDefault(); doDrag(e,false); if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); }
-
-function loadFile(file){
-  if(!file) return;
-  document.getElementById('fname').textContent='✓ '+file.name;
-  var r=new FileReader();
-  r.onload=function(e){
-    var wb=XLSX.read(e.target.result,{type:'array'});
-    var ws=wb.Sheets[wb.SheetNames[0]];
-    var raw=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-    var hi=-1;
-    for(var i=0;i<raw.length;i++){ if(raw[i].some(function(c){ return String(c).toLowerCase().includes('agent name'); })){ hi=i; break; } }
-    if(hi<0){ alert('Could not find "Agent Name" column.'); return; }
-    var hdr=raw[hi].map(function(h){ return String(h).trim().toLowerCase(); });
-    function ci(ns){ for(var k=0;k<ns.length;k++){ var x=hdr.findIndex(function(h){ return h.includes(ns[k]); }); if(x>=0) return x; } return -1; }
-    var iN=ci(['agent name']),iM=ci(['month']),iP=ci(['passed pip','passed']),iS=ci(['agent status','status']),iC=ci(['comment']),iR=ci(['reason']);
-    data=[];
-    for(var r2=hi+1;r2<raw.length;r2++){
-      var row=raw[r2];
-      var n=String(row[iN]||'').trim();
-      if(!n||n.toLowerCase()==='agent name') continue;
-      var c=iC>=0?String(row[iC]||'').trim():'';
-      if(!c&&iR>=0) c=String(row[iR]||'').trim();
-      data.push({name:n,month:String(row[iM]||'').trim(),pip:String(row[iP]||'').trim(),status:String(row[iS]||'').trim(),comment:c});
-    }
-    fillFilters(); updateMetrics(); renderCharts(); render();
-    // Save to localStorage for persistence
-    try { localStorage.setItem('pipdata', JSON.stringify(data)); localStorage.setItem('pipfilename', file.name); } catch(e){}
-  };
-  r.readAsArrayBuffer(file);
+function switchView(v) {
+  document.getElementById('view-table').style.display = v==='table'?'block':'none';
+  document.getElementById('view-month').style.display = v==='month'?'block':'none';
+  document.querySelectorAll('.tab').forEach(function(t,i){ t.classList.toggle('active', (i===0&&v==='table')||(i===1&&v==='month')); });
+  if(v==='month') renderMonthView();
 }
 
-function fillFilters(){
-  var mons=[...new Set(data.map(function(d){return d.month;}).filter(Boolean))].sort(function(a,b){return MO.indexOf(a)-MO.indexOf(b);});
-  var stats=[...new Set(data.map(function(d){return d.pip;}).filter(Boolean))].sort();
-  var ms=document.getElementById('fmon'); ms.innerHTML='<option value="">All months</option>';
-  mons.forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;ms.appendChild(o);});
-  var ss=document.getElementById('fstat'); ss.innerHTML='<option value="">All statuses</option>';
-  stats.forEach(function(s){var o=document.createElement('option');o.value=s;o.textContent=s;ss.appendChild(o);});
+function renderMonthView() {
+  var container = document.getElementById('view-month');
+  var months = MO.filter(function(m){ return data.some(function(d){ return d.month===m; }); });
+  container.innerHTML = months.map(function(month) {
+    var mdata = data.filter(function(d){ return d.month===month; });
+    var ip = mdata.filter(function(d){ return d.pip.toLowerCase().includes('progress'); }).length;
+    var ps = mdata.filter(function(d){ return d.pip.toLowerCase()==='yes'; }).length;
+    var fl = mdata.filter(function(d){ return d.pip.toLowerCase()==='no'; }).length;
+    var tr = mdata.filter(function(d){ return d.status.toLowerCase()==='term'; }).length;
+    return '<div class="month-section"><div class="month-header"><span>'+month+'</span><div class="month-stats">'+
+      '<span class="month-stat"><span class="badge bp">'+ip+' In Progress</span></span>'+
+      '<span class="month-stat"><span class="badge by">'+ps+' Passed</span></span>'+
+      '<span class="month-stat"><span class="badge bn">'+fl+' Did Not Pass</span></span>'+
+      '<span class="month-stat"><span class="badge bt">'+tr+' Term</span></span>'+
+      '</div></div>'+
+      '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">'+
+      '<thead><tr>'+
+      '<th style="background:#F4F6F8;padding:10px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#6B7C8D;border-bottom:1px solid #E2E8EF;border-top:1px solid #E2E8EF">Agent Name</th>'+
+      '<th style="background:#F4F6F8;padding:10px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#6B7C8D;border-bottom:1px solid #E2E8EF;border-top:1px solid #E2E8EF">PIP Status</th>'+
+      '<th style="background:#F4F6F8;padding:10px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#6B7C8D;border-bottom:1px solid #E2E8EF;border-top:1px solid #E2E8EF">Agent Status</th>'+
+      '<th style="background:#F4F6F8;padding:10px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#6B7C8D;border-bottom:1px solid #E2E8EF;border-top:1px solid #E2E8EF">Comments</th>'+
+      '</tr></thead><tbody>'+
+      mdata.map(function(d){ return '<tr style="border-bottom:1px solid #E2E8EF">'+
+        '<td style="padding:11px 16px;font-weight:500">'+esc(d.name)+'</td>'+
+        '<td style="padding:11px 16px">'+pipB(d.pip)+'</td>'+
+        '<td style="padding:11px 16px">'+statB(d.status)+'</td>'+
+        '<td style="padding:11px 16px;color:#6B7C8D;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(d.comment)+'">'+(esc(d.comment)||'—')+'</td>'+
+        '</tr>'; }).join('')+
+      '</tbody></table></div></div>';
+  }).join('');
 }
 
-function updateMetrics(){
-  var ip=data.filter(function(d){return d.pip.toLowerCase().includes('progress');}).length;
-  var ps=data.filter(function(d){return d.pip.toLowerCase()==='yes';}).length;
-  var fl=data.filter(function(d){return d.pip.toLowerCase()==='no';}).length;
-  var tr=data.filter(function(d){return d.status.toLowerCase()==='term';}).length;
-  document.getElementById('mt').textContent=data.length;
-  document.getElementById('mp').textContent=ip;
-  document.getElementById('mps').textContent=ps;
-  document.getElementById('mf').textContent=fl;
-  document.getElementById('mtr').textContent=tr;
-  document.getElementById('hcount').textContent=ip+' Active PIP'+(ip!==1?'s':'');
-}
+// Init metrics
+var ip=data.filter(function(d){return d.pip.toLowerCase().includes('progress');}).length;
+var ps=data.filter(function(d){return d.pip.toLowerCase()==='yes';}).length;
+var fl=data.filter(function(d){return d.pip.toLowerCase()==='no';}).length;
+var tr=data.filter(function(d){return d.status.toLowerCase()==='term';}).length;
+document.getElementById('mt').textContent=data.length;
+document.getElementById('mp').textContent=ip;
+document.getElementById('mps').textContent=ps;
+document.getElementById('mf').textContent=fl;
+document.getElementById('mtr').textContent=tr;
+document.getElementById('hcount').textContent=ip+' Active PIP'+(ip!==1?'s':'');
 
-var cS=null,cM=null;
-function renderCharts(){
-  var ip=data.filter(function(d){return d.pip.toLowerCase().includes('progress');}).length;
-  var ps=data.filter(function(d){return d.pip.toLowerCase()==='yes';}).length;
-  var fl=data.filter(function(d){return d.pip.toLowerCase()==='no';}).length;
-  var cols=['#F5A623','#00AC69','#E53935'],labs=['In Progress','Passed','Did Not Pass'],vals=[ip,ps,fl];
-  if(cS) cS.destroy();
-  cS=new Chart(document.getElementById('cs'),{type:'doughnut',data:{labels:labs,datasets:[{data:vals,backgroundColor:cols,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}});
-  document.getElementById('leg').innerHTML=labs.map(function(l,i){return '<span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:'+cols[i]+';display:inline-block"></span>'+l+' <strong>'+vals[i]+'</strong></span>';}).join('');
-  var mc={};MO.forEach(function(m){mc[m]=0;});
-  data.forEach(function(d){if(d.month) mc[d.month]=(mc[d.month]||0)+1;});
-  var mp=MO.filter(function(m){return mc[m]>0;});
-  if(cM) cM.destroy();
-  cM=new Chart(document.getElementById('cm'),{type:'bar',data:{labels:mp,datasets:[{label:'PIPs',data:mp.map(function(m){return mc[m];}),backgroundColor:'#00AC69',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,color:'#6B7C8D',font:{size:11}},grid:{color:'#E2E8EF'}},x:{ticks:{color:'#6B7C8D',font:{size:11}},grid:{display:false}}}}});
-}
+// Charts
+var cols=['#F5A623','#00AC69','#E53935'],labs=['In Progress','Passed','Did Not Pass'],vals=[ip,ps,fl];
+new Chart(document.getElementById('cs'),{type:'doughnut',data:{labels:labs,datasets:[{data:vals,backgroundColor:cols,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}});
+document.getElementById('leg').innerHTML=labs.map(function(l,i){return '<span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:'+cols[i]+';display:inline-block"></span>'+l+' <strong>'+vals[i]+'</strong></span>';}).join('');
+var mc={};MO.forEach(function(m){mc[m]=0;});
+data.forEach(function(d){if(d.month) mc[d.month]=(mc[d.month]||0)+1;});
+var mp=MO.filter(function(m){return mc[m]>0;});
+new Chart(document.getElementById('cm'),{type:'bar',data:{labels:mp,datasets:[{label:'PIPs',data:mp.map(function(m){return mc[m];}),backgroundColor:'#00AC69',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,color:'#6B7C8D',font:{size:11}},grid:{color:'#E2E8EF'}},x:{ticks:{color:'#6B7C8D',font:{size:11}},grid:{display:false}}}}});
+
+// Filters
+var mons=MO.filter(function(m){return data.some(function(d){return d.month===m;});});
+var stats=[...new Set(data.map(function(d){return d.pip;}).filter(Boolean))].sort();
+var ms=document.getElementById('fmon');
+mons.forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;ms.appendChild(o);});
+var ss=document.getElementById('fstat');
+stats.forEach(function(s){var o=document.createElement('option');o.value=s;o.textContent=s;ss.appendChild(o);});
 
 function filtered(){
   var s=(document.getElementById('srch').value||'').toLowerCase();
@@ -321,11 +243,9 @@ function render(){
     if(sk==='month'){av=MO.indexOf(av);bv=MO.indexOf(bv);return(av-bv)*sd;}
     return av.localeCompare(bv)*sd;
   });
-  var tb=document.getElementById('tb'),emp=document.getElementById('emp'),thead=document.querySelector('#tbl thead');
-  if(d.length===0){tb.innerHTML='';emp.style.display='block';thead.style.display=data.length>0?'':'none';return;}
-  emp.style.display='none';thead.style.display='';
-  tb.innerHTML=d.map(function(row){return '<tr><td class="an">'+esc(row.name)+'</td><td>'+(esc(row.month)||'—')+'</td><td>'+pipB(row.pip)+'</td><td>'+statB(row.status)+'</td><td style="color:#6B7C8D;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(row.comment)+'">'+(esc(row.comment)||'—')+'</td></tr>';}).join('');
+  document.getElementById('tb').innerHTML=d.map(function(row){return '<tr><td class="an">'+esc(row.name)+'</td><td>'+(esc(row.month)||'—')+'</td><td>'+pipB(row.pip)+'</td><td>'+statB(row.status)+'</td><td style="color:#6B7C8D;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(row.comment)+'">'+(esc(row.comment)||'—')+'</td></tr>';}).join('');
 }
+render();
 </script>
 </body>
 </html>
